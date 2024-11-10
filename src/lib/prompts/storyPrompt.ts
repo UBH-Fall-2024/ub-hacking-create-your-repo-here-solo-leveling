@@ -1,4 +1,6 @@
-export const generateStoryPrompt = (tasks: any[], settings: any) => `
+import type { Task, StorySettings } from '@/types';
+
+export const generateStoryPrompt = (tasks: Task[], settings: StorySettings) => `
 You are crafting a COHERENT, ENGAGING story that weaves everyday tasks into a meaningful narrative.
 
 STORY ELEMENTS:
@@ -18,7 +20,7 @@ Style: ${settings.customNarrativeStyle || settings.narrativeStyle}
 - Make the narrative flow naturally
 
 TASKS TO TRANSFORM:
-${tasks.map((task: any) => `
+${tasks.map((task: Task) => `
 ${task.title}
 - Type: ${task.type}
 - Challenge Level: ${task.difficulty}

@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
 import { Brain, Settings2, Lock } from 'lucide-react';
 import { useStoryStore } from '@/store/story';
 

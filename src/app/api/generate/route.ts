@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
 import { generateStoryPrompt } from '@/lib/prompts/storyPrompt';
 import { parseStoryResponse } from '@/lib/parsers/storyParser';
-import type { GeneratedStory } from '@/types';
+import type { GeneratedStory, Task, StorySettings } from '@/types';
 
 // Initialize APIs
 const openai = new OpenAI({
@@ -58,9 +58,15 @@ async function generateWithGemini(prompt: string) {
   return response.text();
 }
 
+interface RequestBody {
+  tasks: Task[];
+  settings: StorySettings;
+  model?: AIModel;
+}
+
 export async function POST(req: Request) {
   try {
-    const { tasks, settings, model = 'gpt-4' } = await req.json();
+    const { tasks, settings, model = 'gpt-4' } = await req.json() as RequestBody;
     
     if (!tasks || tasks.length === 0) {
       throw new Error('No tasks provided');
@@ -126,7 +132,7 @@ export async function POST(req: Request) {
     
     const finalStory: GeneratedStory = {
       ...parsedStory,
-      transformedTasks: tasks.map((task: any, index: number) => ({
+      transformedTasks: tasks.map((task: Task, index: number) => ({
         id: task.id,
         originalTask: task.title,
         questName: parsedStory.transformedTasks[index]?.questName || task.title,
