@@ -11,6 +11,9 @@ export interface Task {
     type: QuestType;
     difficulty: QuestDifficulty;
     estimatedTime?: string;
+    status: 'active' | 'completed' | 'archived';
+    createdAt: Date;
+    completedAt?: Date;
   }
   
   export interface StorySettings {

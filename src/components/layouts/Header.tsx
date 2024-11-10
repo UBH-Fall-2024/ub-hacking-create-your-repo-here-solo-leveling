@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useUser } from '@auth0/nextjs-auth0/client';
-import { LogIn, LogOut, User } from 'lucide-react';
+import { LogIn, LogOut, User, Settings } from 'lucide-react';
 
 export function Header() {
   const { user, isLoading } = useUser();
@@ -35,71 +35,96 @@ export function Header() {
 
         {/* Main Navigation */}
         <nav className="flex items-center gap-8">
-          <Link 
-            href="/journey"
-            className="relative group"
-          >
-            <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-              Your Journey
-            </span>
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 group-hover:w-full transition-all duration-300" />
-          </Link>
-          
-          <Link 
-            href="/quests"
-            className="relative group"
-          >
-            <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-              Active Quests
-            </span>
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 group-hover:w-full transition-all duration-300" />
-          </Link>
-
-          {/* Quick Add Quest Button */}
-          <Link href="/story-settings">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-purple-500/25"
-            >
-              New Quest
-            </motion.button>
-          </Link>
-
-          <Link 
-            href="/settings"
-            className="relative group"
-          >
-            <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-              Settings
-            </span>
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 group-hover:w-full transition-all duration-300" />
-          </Link>
-
           {!isLoading && (
             <>
               {user ? (
-                <div className="flex items-center gap-4">
-                  <Link href="/settings" className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    <span className="text-sm">{user.name}</span>
+                // Logged in navigation
+                <>
+                  <Link 
+                    href="/journey"
+                    className="relative group"
+                  >
+                    <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                      Your Journey
+                    </span>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 group-hover:w-full transition-all duration-300" />
+                  </Link>
+                  
+                  <Link 
+                    href="/quests"
+                    className="relative group"
+                  >
+                    <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                      Active Quests
+                    </span>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 group-hover:w-full transition-all duration-300" />
+                  </Link>
+
+                  {/* Quick Add Quest Button */}
+                  <Link href="/quests/new">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-purple-500/25"
+                    >
+                      New Quest
+                    </motion.button>
+                  </Link>
+
+                  {/* User Menu */}
+                  <div className="flex items-center gap-4">
+                    <Link 
+                      href="/settings" 
+                      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Settings className="w-4 h-4" />
+                      Settings
+                    </Link>
+                    <Link 
+                      href="/profile" 
+                      className="flex items-center gap-2"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center">
+                        {user.picture ? (
+                          <img 
+                            src={user.picture} 
+                            alt={user.name || 'Profile'} 
+                            className="w-full h-full rounded-full"
+                          />
+                        ) : (
+                          <User className="w-4 h-4" />
+                        )}
+                      </div>
+                    </Link>
+                    <a
+                      href="/api/auth/logout"
+                      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </a>
+                  </div>
+                </>
+              ) : (
+                // Non-logged in navigation
+                <>
+                  <Link 
+                    href="/about"
+                    className="relative group"
+                  >
+                    <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                      About
+                    </span>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 group-hover:w-full transition-all duration-300" />
                   </Link>
                   <a
-                    href="/api/auth/logout"
-                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+                    href="/api/auth/login"
+                    className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-purple-500/25 flex items-center gap-2"
                   >
-                    <LogOut className="w-4 h-4" />
-                    Logout
+                    <LogIn className="w-4 h-4" />
+                    Get Started
                   </a>
-                </div>
-              ) : (
-                <a
-                  href="/api/auth/login"
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Login
-                </a>
+                </>
               )}
             </>
           )}

@@ -136,6 +136,16 @@ export function StoryConfigForm() {
           </motion.button>
         </div>
       </div>
+
+      {/* Story settings messaging */}
+      <div className="text-center space-y-4">
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+          Forge Your Legend
+        </h2>
+        <p className="text-muted-foreground">
+          Choose the elements that will shape your unique story
+        </p>
+      </div>
     </div>
   );
 }

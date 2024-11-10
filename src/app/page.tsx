@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
-export default function Home() {
+export default function LandingPage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
       {/* Hero Section */}
@@ -13,15 +13,12 @@ export default function Home() {
         className="text-center space-y-6 max-w-3xl"
       >
         <motion.h1 
-          className="text-5xl sm:text-6xl font-bold"
+          className="text-4xl font-bold"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          Transform Tasks into
-          <span className="block bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
-            Epic Quests
-          </span>
+          Transform Your Tasks into an Epic Saga
         </motion.h1>
         
         <motion.p 
@@ -30,7 +27,7 @@ export default function Home() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
-          Turn your daily tasks into legendary adventures. Choose your character, universe, and narrative style to make every achievement epic.
+          Where every task completion advances your story, and every achievement shapes your legend
         </motion.p>
 
         {/* CTA Buttons */}
@@ -50,7 +47,7 @@ export default function Home() {
             </motion.button>
           </Link>
           
-          <Link href="/guide">
+          <Link href="/about">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

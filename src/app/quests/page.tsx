@@ -60,10 +60,10 @@ function QuestsPageContent() {
             className="text-center space-y-4 mb-8"
           >
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
-              Your Journey Begins
+              Your Ongoing Saga
             </h1>
             <p className="text-muted-foreground">
-              Add your first tasks below to transform them into epic quests
+              Each quest shapes your story, every completion advances your legend
             </p>
           </motion.div>
         )}

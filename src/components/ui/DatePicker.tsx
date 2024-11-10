@@ -77,6 +77,13 @@ export function DatePicker({ value, onChange, placeholder = "Select deadline..."
     end: endOfMonth(currentMonth),
   });
 
+  const firstDayOfMonth = startOfMonth(currentMonth);
+  const startOffset = firstDayOfMonth.getDay(); // 0 for Sunday
+
+  const emptyDays = Array(startOffset).fill(null);
+
+  const allDays = [...emptyDays, ...days];
+
   const handleSelect = (date: Date) => {
     if (includeTime) {
       const dateWithTime = setMinutes(
@@ -162,7 +169,11 @@ export function DatePicker({ value, onChange, placeholder = "Select deadline..."
               ))}
 
               {/* Calendar Days */}
-              {days.map((day) => {
+              {allDays.map((day, index) => {
+                if (!day) {
+                  return <div key={`empty-${index}`} className="p-2" />;
+                }
+
                 const isSelected = value ? isSameDay(day, value) : false;
                 const isCurrentMonth = isSameMonth(day, currentMonth);
                 const isCurrentDay = isToday(day);

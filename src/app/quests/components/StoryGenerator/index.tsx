@@ -1,10 +1,9 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useStoryStore } from '@/store/story';
-import { Sparkles, BookOpen, Loader2, ChevronDown, ChevronUp, RefreshCw, Trash2, Flag } from 'lucide-react';
-import type { GeneratedStory } from '@/types';
+import { Sparkles, BookOpen, Loader2, ChevronDown, ChevronUp, RefreshCw, Trash2 } from 'lucide-react';
 import { OracleAnimation } from '@/components/ui/OracleAnimation';
 
 export function StoryGenerator() {
@@ -12,28 +11,33 @@ export function StoryGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showStory, setShowStory] = useState(false);
-  const [generatedStory, setGeneratedStory] = useState<GeneratedStory | null>(savedStory);
 
-  // Show saved story when component mounts
-  useEffect(() => {
-    if (savedStory) {
-      setGeneratedStory(savedStory);
-      setShowStory(true);
-    }
-  }, [savedStory]);
+  // Only show active tasks count
+  const activeTasks = useMemo(() => 
+    tasks.filter(task => task.status === 'active'),
+    [tasks]
+  );
 
   const handleGenerateStory = async () => {
+    if (activeTasks.length === 0) {
+      setError('No active tasks to generate story from');
+      return;
+    }
+
+    if (!settings.universe || !settings.character || !settings.narrativeStyle) {
+      setError('Please configure your story settings first');
+      return;
+    }
+
     setIsGenerating(true);
     setError(null);
     
     try {
-      console.log('Generating story with:', { tasks, settings, model: aiModel });
-      
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          tasks, 
+          tasks: activeTasks,
           settings,
           model: aiModel 
         }),
@@ -44,10 +48,9 @@ export function StoryGenerator() {
         throw new Error(errorData.error || 'Failed to generate story');
       }
       
-      const story: GeneratedStory = await response.json();
+      const story = await response.json();
       console.log('Generated story:', story);
       
-      setGeneratedStory(story);
       setStory(story);
       setShowStory(true);
     } catch (err) {
@@ -59,9 +62,70 @@ export function StoryGenerator() {
   };
 
   const handleClearStory = () => {
-    setGeneratedStory(null);
     clearStory();
+    setShowStory(false);
   };
+
+  // Memoize story sections to prevent unnecessary re-renders
+  const storyContent = useMemo(() => {
+    if (!savedStory) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, height: 0 }}
+        animate={{ opacity: 1, height: 'auto' }}
+        exit={{ opacity: 0, height: 0 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="px-6 pb-6 space-y-6"
+      >
+        {/* Opening Scene */}
+        <motion.div
+          key="opening-scene"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="space-y-2"
+        >
+          <h4 className="font-semibold text-purple-500">Opening Scene</h4>
+          <p className="text-sm text-muted-foreground">
+            {savedStory.openingScene}
+          </p>
+        </motion.div>
+
+        {/* Quest Narratives */}
+        <motion.div
+          key="quest-narratives"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="space-y-4"
+        >
+          <h4 className="font-semibold text-purple-500">The Journey</h4>
+          {savedStory.transformedTasks.map((quest, index) => (
+            <div key={`quest-${index}`} className="space-y-2">
+              <h5 className="font-medium">{quest.questName}</h5>
+              <p className="text-sm text-muted-foreground">{quest.narrative}</p>
+              <p className="text-sm italic text-purple-500/80">{quest.completion}</p>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Epilogue */}
+        <motion.div
+          key="epilogue"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="space-y-2"
+        >
+          <h4 className="font-semibold text-purple-500">Epilogue</h4>
+          <p className="text-sm text-muted-foreground">
+            {savedStory.epilogue}
+          </p>
+        </motion.div>
+      </motion.div>
+    );
+  }, [savedStory]);
 
   return (
     <div className="space-y-6">
@@ -88,18 +152,18 @@ export function StoryGenerator() {
           <div className="space-y-1">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-purple-500" />
-              {generatedStory ? 'Your Epic Tale' : 'Ready to Generate Your Epic Tale'}
+              {savedStory ? 'Your Epic Tale' : 'Ready to Generate Your Epic Tale'}
             </h3>
             <p className="text-sm text-muted-foreground">
-              {generatedStory 
+              {savedStory 
                 ? 'Your story has been woven from your quests'
-                : `Transform your ${tasks.length} quest${tasks.length !== 1 ? 's' : ''} into an epic story`
+                : `Transform your ${activeTasks.length} quest${activeTasks.length !== 1 ? 's' : ''} into an epic story`
               }
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            {generatedStory && (
+            {savedStory && (
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -114,7 +178,7 @@ export function StoryGenerator() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleGenerateStory}
-              disabled={isGenerating || tasks.length === 0}
+              disabled={isGenerating || activeTasks.length === 0}
               className="px-6 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isGenerating ? (
@@ -122,7 +186,7 @@ export function StoryGenerator() {
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Generating...
                 </>
-              ) : generatedStory ? (
+              ) : savedStory ? (
                 <>
                   <RefreshCw className="w-4 h-4" />
                   Regenerate Tale
@@ -138,7 +202,7 @@ export function StoryGenerator() {
         </div>
 
         {/* Task count indicator */}
-        {!generatedStory && tasks.length > 0 && (
+        {!savedStory && activeTasks.length > 0 && (
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -148,15 +212,15 @@ export function StoryGenerator() {
               <motion.div
                 className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
                 style={{ 
-                  width: `${Math.min(100, (tasks.length / 3) * 100)}%`,
+                  width: `${Math.min(100, (activeTasks.length / 3) * 100)}%`,
                 }}
                 initial={{ width: 0 }}
-                animate={{ width: `${Math.min(100, (tasks.length / 3) * 100)}%` }}
+                animate={{ width: `${Math.min(100, (activeTasks.length / 3) * 100)}%` }}
                 transition={{ duration: 0.5 }}
               />
             </div>
             <span className="text-xs text-muted-foreground">
-              {tasks.length} {tasks.length === 1 ? 'quest' : 'quests'} ready
+              {activeTasks.length} {activeTasks.length === 1 ? 'quest' : 'quests'} ready
             </span>
           </motion.div>
         )}
@@ -169,7 +233,7 @@ export function StoryGenerator() {
 
       {/* Generated Story Display */}
       <AnimatePresence mode="wait">
-        {generatedStory && (
+        {savedStory && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -187,7 +251,7 @@ export function StoryGenerator() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
-                  {generatedStory.title}
+                  {savedStory.title}
                 </h3>
                 {showStory ? (
                   <ChevronUp className="w-5 h-5 text-purple-500" />
@@ -199,58 +263,7 @@ export function StoryGenerator() {
 
             {/* Story Content */}
             <AnimatePresence mode="wait">
-              {showStory && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="px-6 pb-6 space-y-6"
-                >
-                  {/* Opening Scene */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="space-y-2"
-                  >
-                    <h4 className="font-semibold text-purple-500">Opening Scene</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {generatedStory.openingScene}
-                    </p>
-                  </motion.div>
-
-                  {/* Quest Narratives */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="space-y-4"
-                  >
-                    <h4 className="font-semibold text-purple-500">The Journey</h4>
-                    {generatedStory.transformedTasks.map((quest) => (
-                      <div key={quest.id} className="space-y-2">
-                        <h5 className="font-medium">{quest.questName}</h5>
-                        <p className="text-sm text-muted-foreground">{quest.narrative}</p>
-                        <p className="text-sm italic text-purple-500/80">{quest.completion}</p>
-                      </div>
-                    ))}
-                  </motion.div>
-
-                  {/* Epilogue */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    className="space-y-2"
-                  >
-                    <h4 className="font-semibold text-purple-500">Epilogue</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {generatedStory.epilogue}
-                    </p>
-                  </motion.div>
-                </motion.div>
-              )}
+              {showStory && storyContent}
             </AnimatePresence>
           </motion.div>
         )}

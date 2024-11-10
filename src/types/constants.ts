@@ -19,10 +19,20 @@ export const CHARACTER_TYPES = {
     name: 'Chaotic Antihero',
     examples: 'Gintoki, Vegeta',
     traits: ['unpredictable', 'complex morality', 'powerful']
+  },
+  WONDERLAND_EXPLORER: {
+    name: 'Wonderland Explorer',
+    examples: 'Alice, Mad Hatter, White Rabbit',
+    traits: ['curiosity', 'adaptable', 'whimsical', 'defies logic']
   }
 } as const;
 
 export const UNIVERSE_SETTINGS = {
+  WONDERLAND: {
+    name: 'Wonderland Realms',
+    variants: ['Down the Rabbit Hole', 'Looking Glass World', 'Queen\'s Domain', 'Mad Tea Party'],
+    elements: ['whimsical chaos', 'dream logic', 'talking creatures', 'size-shifting', 'time puzzles']
+  },
   BATTLE_ANIME: {
     name: 'Battle Anime World',
     variants: ['Dragon Ball Z', 'Naruto', 'Jujutsu Kaisen', 'Hero Academia'],
@@ -46,6 +56,11 @@ export const UNIVERSE_SETTINGS = {
 } as const;
 
 export const NARRATIVE_STYLES = {
+  WONDERLAND_WHIMSY: {
+    name: 'Wonderland Whimsy',
+    tone: 'Delightfully nonsensical with hidden wisdom',
+    elements: ['riddles', 'wordplay', 'dream logic', 'poetic justice']
+  },
   EPIC_SHONEN: {
     name: 'Epic Shonen Style',
     tone: 'Energetic and dramatic with hype moments',

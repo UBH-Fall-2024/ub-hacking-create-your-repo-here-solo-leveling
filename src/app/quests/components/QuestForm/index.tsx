@@ -23,7 +23,7 @@ interface QuestFormProps {
 }
 
 export function QuestForm({ onClose, editingTask }: QuestFormProps) {
-  const { tasks, setTasks } = useStoryStore();
+  const { addTask, updateTask } = useStoryStore();
   const [formData, setFormData] = useState<QuestFormData>({
     title: editingTask?.title || '',
     description: editingTask?.description || '',
@@ -39,18 +39,16 @@ export function QuestForm({ onClose, editingTask }: QuestFormProps) {
 
     if (editingTask) {
       // Update existing task
-      setTasks(tasks.map(task => 
-        task.id === editingTask.id 
-          ? { ...task, ...formData }
-          : task
-      ));
+      updateTask(editingTask.id, formData);
     } else {
       // Create new task
-      const newTask = {
+      const newTask: Task = {
         id: uuidv4(),
         ...formData,
+        status: 'active',
+        createdAt: new Date(),
       };
-      setTasks([...tasks, newTask]);
+      addTask(newTask);
     }
     onClose();
   };

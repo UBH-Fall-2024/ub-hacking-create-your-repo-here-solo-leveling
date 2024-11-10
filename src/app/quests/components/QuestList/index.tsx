@@ -8,6 +8,7 @@ import { QuestForm } from '../QuestForm';
 import { useState } from 'react';
 import type { Task } from '@/types';
 import { StoryGenerator } from '../StoryGenerator';
+import { QuestCard } from '../QuestCard';
 
 const difficultyColors = {
   NORMAL: 'from-green-500/30 to-green-600/30 border-green-500/30',
@@ -23,8 +24,19 @@ const columnOrder: Record<string, number> = {
   'SIDE_QUEST': 2,
 };
 
+interface QuestStatus {
+  ACTIVE: 'active';
+  COMPLETED: 'completed';
+  ARCHIVED: 'archived';
+}
+
+interface TaskWithStatus extends Task {
+  status: keyof QuestStatus;
+  completedAt?: Date;
+}
+
 export function QuestList() {
-  const { tasks, setTasks } = useStoryStore();
+  const { tasks, updateTask, removeTask } = useStoryStore();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -34,7 +46,20 @@ export function QuestList() {
   };
 
   const handleDelete = (id: string) => {
-    setTasks(tasks.filter(task => task.id !== id));
+    removeTask(id);
+  };
+
+  const handleComplete = (id: string) => {
+    updateTask(id, { 
+      status: 'completed', 
+      completedAt: new Date() 
+    });
+  };
+
+  const handleArchive = (id: string) => {
+    updateTask(id, { 
+      status: 'archived' 
+    });
   };
 
   const handleEditComplete = () => {
@@ -42,18 +67,17 @@ export function QuestList() {
     setIsDialogOpen(false);
   };
 
-  // Group tasks by type
+  // Group tasks by status and type
   const groupedTasks = tasks.reduce((acc, task) => {
-    const type = task.type || 'MAIN_QUEST';
-    if (!acc[type]) acc[type] = [];
-    acc[type].push(task);
+    const status = task.status || 'active';
+    const type = task.type;
+    
+    if (!acc[status]) acc[status] = {};
+    if (!acc[status][type]) acc[status][type] = [];
+    
+    acc[status][type].push(task);
     return acc;
-  }, {} as Record<string, Task[]>);
-
-  // Sort quest types by defined order
-  const sortedQuestTypes = Object.entries(groupedTasks).sort(
-    ([a], [b]) => (columnOrder[a] ?? 999) - (columnOrder[b] ?? 999)
-  );
+  }, {} as Record<string, Record<string, Task[]>>);
 
   if (tasks.length === 0) {
     return (
@@ -78,145 +102,106 @@ export function QuestList() {
       {/* Story Generator */}
       <StoryGenerator />
 
-      {/* Quest Count */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
-          Active Quests ({tasks.length})
-        </h2>
+      {/* Active Quests */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Daily Quests */}
+        <section>
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <span className="w-2 h-2 bg-green-500 rounded-full" />
+            Daily Quests
+          </h2>
+          <div className="space-y-4">
+            {groupedTasks.active?.DAILY?.map(task => (
+              <QuestCard 
+                key={task.id} 
+                task={task}
+                onEdit={() => handleEdit(task)}
+                onDelete={() => handleDelete(task.id)}
+                onComplete={() => handleComplete(task.id)}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Main Quests */}
+        <section>
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <span className="w-2 h-2 bg-purple-500 rounded-full" />
+            Main Quests
+          </h2>
+          <div className="space-y-4">
+            {groupedTasks.active?.MAIN_QUEST?.map(task => (
+              <QuestCard 
+                key={task.id} 
+                task={task}
+                onEdit={() => handleEdit(task)}
+                onDelete={() => handleDelete(task.id)}
+                onComplete={() => handleComplete(task.id)}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Side Quests */}
+        <section>
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <span className="w-2 h-2 bg-pink-500 rounded-full" />
+            Side Quests
+          </h2>
+          <div className="space-y-4">
+            {groupedTasks.active?.SIDE_QUEST?.map(task => (
+              <QuestCard 
+                key={task.id} 
+                task={task}
+                onEdit={() => handleEdit(task)}
+                onDelete={() => handleDelete(task.id)}
+                onComplete={() => handleComplete(task.id)}
+              />
+            ))}
+          </div>
+        </section>
       </div>
 
-      {/* Quest Scroll Layout */}
-      <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8">
-        {sortedQuestTypes.map(([type, typeTasks]) => (
-          <motion.div
-            key={type}
-            layout
-            className="relative"
-          >
-            {/* Quest Type Header */}
-            <motion.div 
-              className="relative mb-6 overflow-hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <div className="relative p-4 bg-background/30 border border-purple-500/20 rounded-lg backdrop-blur-sm">
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-purple-500/5"
-                  animate={{ 
-                    backgroundPosition: ['0% 0%', '100% 100%'],
-                  }}
-                  transition={{ 
-                    duration: 10,
-                    repeat: Infinity,
-                    repeatType: "reverse"
-                  }}
-                  style={{ backgroundSize: '200% 200%' }}
+      {/* Completed Quests */}
+      {groupedTasks.completed && Object.keys(groupedTasks.completed).length > 0 && (
+        <section className="mt-12">
+          <h2 className="text-xl font-bold mb-4 text-muted-foreground">
+            Completed Quests
+          </h2>
+          <div className="grid gap-4 opacity-60">
+            {Object.entries(groupedTasks.completed).map(([type, tasks]) =>
+              tasks.map(task => (
+                <QuestCard 
+                  key={task.id} 
+                  task={task}
+                  isCompleted
+                  onArchive={() => handleArchive(task.id)}
                 />
-                <div className="relative flex items-center gap-3">
-                  {/* Icon based on quest type */}
-                  <motion.div
-                    animate={type === 'MAIN_QUEST' 
-                      ? { scale: [1, 1.2, 1] }
-                      : type === 'DAILY' 
-                        ? { rotate: 360 }
-                        : { opacity: [1, 0.5, 1] }
-                    }
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className={`w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 ${
-                      type === 'SIDE_QUEST' ? 'rotate-45' : ''
-                    }`}
-                  />
-                  <h3 className="text-lg font-semibold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
-                    {type.replace('_', ' ')}
-                  </h3>
-                </div>
-              </div>
-            </motion.div>
+              ))
+            )}
+          </div>
+        </section>
+      )}
 
-            {/* Quest Cards */}
-            <div className="space-y-6">
-              {typeTasks.map((task) => (
-                <motion.div
-                  key={task.id}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className={`
-                    relative overflow-hidden rounded-lg
-                    backdrop-blur-md group transition-all
-                    hover:shadow-lg bg-background/80
-                  `}
-                >
-                  {/* Scroll Background Effect */}
-                  <div className={`
-                    absolute inset-0 bg-gradient-to-br ${difficultyColors[task.difficulty]}
-                    opacity-80
-                  `} />
-                  
-                  {/* Magical Border Effect */}
-                  <div className="absolute inset-0 border border-purple-500/20 rounded-lg" />
-                  
-                  {/* Content */}
-                  <div className="relative p-4 space-y-3">
-                    {/* Header */}
-                    <div className="flex justify-between items-start">
-                      <h4 className="text-lg font-semibold">{task.title}</h4>
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleEdit(task)}
-                          className="p-1 hover:text-purple-500 transition-colors"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleDelete(task.id)}
-                          className="p-1 hover:text-pink-500 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </motion.button>
-                      </div>
-                    </div>
-
-                    {/* Description */}
-                    {task.description && (
-                      <p className="text-sm text-muted-foreground">
-                        {task.description}
-                      </p>
-                    )}
-
-                    {/* Metadata */}
-                    <div className="flex flex-wrap gap-3 text-sm text-muted-foreground pt-2 border-t border-purple-500/10">
-                      <div className="flex items-center gap-1">
-                        <Sword className="w-4 h-4" />
-                        <span>{task.difficulty}</span>
-                      </div>
-                      {task.estimatedTime && (
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{task.estimatedTime}</span>
-                        </div>
-                      )}
-                      {task.deadline && (
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            {new Date(task.deadline).toLocaleDateString()}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      {/* Archived Quests */}
+      {groupedTasks.archived && Object.keys(groupedTasks.archived).length > 0 && (
+        <section className="mt-12">
+          <h2 className="text-xl font-bold mb-4 text-muted-foreground">
+            Quest Archive
+          </h2>
+          <div className="grid gap-4 opacity-40">
+            {Object.entries(groupedTasks.archived).map(([type, tasks]) =>
+              tasks.map(task => (
+                <QuestCard 
+                  key={task.id} 
+                  task={task}
+                  isArchived
+                />
+              ))
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Edit Dialog */}
       <QuestDialog

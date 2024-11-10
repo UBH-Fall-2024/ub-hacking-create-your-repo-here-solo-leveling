@@ -1,58 +1,66 @@
 import type { Task, StorySettings } from '@/types';
 
-export const generateStoryPrompt = (tasks: Task[], settings: StorySettings) => `
-You are crafting a COHERENT, ENGAGING story that weaves everyday tasks into a meaningful narrative.
+export const generateStoryPrompt = (tasks: Task[], settings: StorySettings) => {
+  // Get only active tasks
+  const activeTasks = tasks.filter(task => task.status === 'active');
 
-STORY ELEMENTS:
+  return `
+You are a master storyteller crafting an ENGAGING and COHERENT narrative that transforms active tasks into a meaningful story.
+
+STORY WORLD:
+Universe: ${settings.customUniverse || settings.universe}
 Character: ${settings.customCharacter || settings.character}
-- How they approach challenges
-- Their unique perspective
-- Their growth through these tasks
-
-Setting: ${settings.customUniverse || settings.universe}
-- How the environment affects the tasks
-- Unique aspects of this world
-- How the setting transforms ordinary moments
-
 Style: ${settings.customNarrativeStyle || settings.narrativeStyle}
-- Keep the tone consistent
-- Use specific details and sensory elements
-- Make the narrative flow naturally
 
-TASKS TO TRANSFORM:
-${tasks.map((task: Task) => `
-${task.title}
-- Type: ${task.type}
-- Challenge Level: ${task.difficulty}
-- Context: ${task.description || 'None provided'}
-- Time Frame: ${task.estimatedTime || 'Unspecified'}
-- Deadline: ${task.deadline ? new Date(task.deadline).toLocaleDateString() : 'None'}
+ACTIVE QUESTS TO TRANSFORM (${activeTasks.length}):
+${activeTasks.map((task) => `
+Quest: ${task.title}
+Type: ${task.type === 'MAIN_QUEST' ? 'Primary Story Arc' : task.type === 'SIDE_QUEST' ? 'Side Adventure' : 'Daily Challenge'}
+Challenge Level: ${task.difficulty}
+Context: ${task.description || 'None provided'}
+Time Frame: ${task.estimatedTime || 'Unspecified'}
+Deadline: ${task.deadline ? new Date(task.deadline).toLocaleDateString() : 'None'}
 `).join('\n')}
 
-REQUIRED STRUCTURE:
+NARRATIVE REQUIREMENTS:
+1. Transform each task into a meaningful quest that fits the universe and character
+2. Connect all quests into ONE COHERENT STORY
+3. Use specific details from the chosen universe
+4. Match the narrative style exactly
+5. Make each quest feel significant to the overall story
 
-# [Title that Captures the Core Theme]
+STORY STRUCTURE:
+
+# [Create an epic title that reflects the current quest arc]
 
 ## Opening Scene
-[A focused scene that establishes character and setting - max 2 paragraphs]
+[Set the stage with rich atmosphere and context]
+- Show the character's current situation
+- Establish the story's tone
+- Hint at the challenges ahead
 
 ## The Journey
-
-### [Task Name Transformed]
-[How the character approaches this specific challenge - include concrete details]
-#### Victory Conditions
-[Clear, specific outcomes that show character growth]
-
-[Repeat for each task, maintaining narrative flow]
+${activeTasks.map((task, index) => `
+### Chapter ${index + 1}: [Create a quest-specific title]
+[Transform "${task.title}" into an epic scene]
+- Show how this quest connects to the larger story
+- Include specific details from the universe
+- Match the chosen narrative style
+- Make the quest feel meaningful
+`).join('\n')}
 
 ## Epilogue
-[Brief conclusion showing overall growth - max 1 paragraph]
+[Show what achieving these quests will mean]
+- Tie all quest threads together
+- Show character growth
+- Leave anticipation for future quests
 
 IMPORTANT:
-1. NO generic descriptions or clichés
-2. Each task should feel like a natural part of the story
-3. Maintain consistent character voice and motivation
-4. Include specific details from the setting
-5. Keep the narrative focused and purposeful
+- Focus on ACTIVE quests only
+- Create a UNIFIED story, not separate scenes
+- Use SPECIFIC details from the chosen universe
+- Match the chosen narrative style exactly
+- Make quest completion feel MEANINGFUL
 
-Remember: This is a character-driven story where everyday tasks reveal growth and purpose.`; 
+Remember: This is an ongoing story where each quest advances the character's journey.`;
+}; 
