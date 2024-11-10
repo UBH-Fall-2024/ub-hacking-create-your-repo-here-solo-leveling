@@ -7,8 +7,9 @@ import { TaskInput } from './components/TaskInput';
 import { QuestList } from './components/QuestList';
 import { useSearchParams } from 'next/navigation';
 import { Edit2 } from 'lucide-react';
+import { Suspense } from 'react';
 
-export default function QuestsPage() {
+function QuestsPageContent() {
   const { settings } = useStoryStore();
   const searchParams = useSearchParams();
   const isNewJourney = searchParams.get('newJourney') === 'true';
@@ -180,5 +181,19 @@ export default function QuestsPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function QuestsPage() {
+  return (
+    <Suspense 
+      fallback={
+        <div className="container mx-auto px-4 py-12 animate-pulse">
+          <div className="h-64 bg-purple-500/10 rounded-lg" />
+        </div>
+      }
+    >
+      <QuestsPageContent />
+    </Suspense>
   );
 }
