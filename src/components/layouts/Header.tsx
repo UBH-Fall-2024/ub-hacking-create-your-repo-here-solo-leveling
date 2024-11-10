@@ -2,11 +2,8 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useStoryStore } from '@/store/story';
 
 export function Header() {
-  const settings = useStoryStore((state) => state.settings);
-  
   return (
     <motion.header 
       initial={{ opacity: 0, y: -20 }}
