@@ -4,10 +4,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { StorySettings, Task, GeneratedStory } from '@/types';
 
+type AIModel = 'gpt-4' | 'gpt-3.5' | 'gemini-pro';
+
 interface StoryState {
   settings: Partial<StorySettings>;
   tasks: Task[];
   story: GeneratedStory | null;
+  aiModel: AIModel;
   
   // Actions
   setSettings: (settings: Partial<StorySettings>) => void;
@@ -16,7 +19,9 @@ interface StoryState {
     value: string
   ) => void;
   setTasks: (tasks: Task[]) => void;
-  setStory: (story: GeneratedStory) => void;
+  setStory: (story: GeneratedStory | null) => void;
+  setAIModel: (model: AIModel) => void;
+  clearStory: () => void;
 }
 
 export const useStoryStore = create<StoryState>()(
@@ -25,6 +30,7 @@ export const useStoryStore = create<StoryState>()(
       settings: {},
       tasks: [],
       story: null,
+      aiModel: 'gpt-4',
       
       setSettings: (newSettings) => 
         set((state) => ({ 
@@ -42,9 +48,17 @@ export const useStoryStore = create<StoryState>()(
         
       setTasks: (tasks) => set({ tasks }),
       setStory: (story) => set({ story }),
+      setAIModel: (model) => set({ aiModel: model }),
+      clearStory: () => set({ story: null }),
     }),
     {
       name: 'story-storage',
+      partialize: (state) => ({
+        settings: state.settings,
+        tasks: state.tasks,
+        story: state.story,
+        aiModel: state.aiModel,
+      }),
     }
   )
 );

@@ -7,6 +7,7 @@ import { QuestDialog } from '../QuestDialog';
 import { QuestForm } from '../QuestForm';
 import { useState } from 'react';
 import type { Task } from '@/types';
+import { StoryGenerator } from '../StoryGenerator';
 
 const difficultyColors = {
   NORMAL: 'from-green-500/30 to-green-600/30 border-green-500/30',
@@ -74,20 +75,14 @@ export function QuestList() {
 
   return (
     <div className="space-y-8">
-      {/* Quest Count & Generate Story */}
+      {/* Story Generator */}
+      <StoryGenerator />
+
+      {/* Quest Count */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
           Active Quests ({tasks.length})
         </h2>
-        {tasks.length >= 3 && (
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="px-6 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium shadow-lg hover:shadow-purple-500/25"
-          >
-            Generate Epic Tale
-          </motion.button>
-        )}
       </div>
 
       {/* Quest Scroll Layout */}

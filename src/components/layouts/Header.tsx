@@ -61,6 +61,16 @@ export function Header() {
               New Quest
             </motion.button>
           </Link>
+
+          <Link 
+            href="/settings"
+            className="relative group"
+          >
+            <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+              Settings
+            </span>
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 group-hover:w-full transition-all duration-300" />
+          </Link>
         </nav>
       </div>
     </motion.header>
