@@ -6,7 +6,7 @@ import type { Task, StorySettings, GeneratedStory } from '@/types';
 
 interface StoryState {
   tasks: Task[];
-  settings: StorySettings;
+  settings: Partial<StorySettings>;
   aiModel: string;
   story: GeneratedStory | null;
   addTask: (task: Task) => void;
@@ -23,14 +23,7 @@ export const useStoryStore = create<StoryState>()(
   persist(
     (set) => ({
       tasks: [],
-      settings: {
-        universe: '',
-        customUniverse: '',
-        character: '',
-        customCharacter: '',
-        narrativeStyle: '',
-        customNarrativeStyle: '',
-      },
+      settings: {},
       aiModel: 'gpt-3.5-turbo',
       story: null,
       addTask: (task) => set((state) => ({ 
