@@ -2,8 +2,12 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useUser } from '@auth0/nextjs-auth0/client';
+import { LogIn, LogOut, User } from 'lucide-react';
 
 export function Header() {
+  const { user, isLoading } = useUser();
+
   return (
     <motion.header 
       initial={{ opacity: 0, y: -20 }}
@@ -71,6 +75,34 @@ export function Header() {
             </span>
             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 group-hover:w-full transition-all duration-300" />
           </Link>
+
+          {!isLoading && (
+            <>
+              {user ? (
+                <div className="flex items-center gap-4">
+                  <Link href="/settings" className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    <span className="text-sm">{user.name}</span>
+                  </Link>
+                  <a
+                    href="/api/auth/logout"
+                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </a>
+                </div>
+              ) : (
+                <a
+                  href="/api/auth/login"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Login
+                </a>
+              )}
+            </>
+          )}
         </nav>
       </div>
     </motion.header>

@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Header } from "@/components/layouts/Header";
 import { Footer } from "@/components/layouts/Footer";
 import "./globals.css";
+import { UserProvider } from '@auth0/nextjs-auth0/client';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -28,26 +29,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gradient-to-b from-gray-900 via-purple-900/10 to-gray-900`}
-        suppressHydrationWarning
-      >
-        <div className="relative min-h-screen flex flex-col">
-          {/* Ambient background effects */}
-          <div className="fixed inset-0 z-0">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
-          </div>
-          
-          <Header />
-          
-          {/* Main content area */}
-          <main className="relative flex-grow pt-16">
-            {children}
-          </main>
+      <UserProvider>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gradient-to-b from-gray-900 via-purple-900/10 to-gray-900`}
+          suppressHydrationWarning
+        >
+          <div className="relative min-h-screen flex flex-col">
+            {/* Ambient background effects */}
+            <div className="fixed inset-0 z-0">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
+            </div>
+            
+            <Header />
+            
+            {/* Main content area */}
+            <main className="relative flex-grow pt-16">
+              {children}
+            </main>
 
-          <Footer />
-        </div>
-      </body>
+            <Footer />
+          </div>
+        </body>
+      </UserProvider>
     </html>
   );
 }
