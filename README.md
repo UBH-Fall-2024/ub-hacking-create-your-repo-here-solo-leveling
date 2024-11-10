@@ -38,3 +38,5 @@ Built entirely on pure hyperfocus energy, SoloLevel is made with Next.js 14 and 
 - **Custom Universes**: Who knows your ideal epic better than you do? Create it yourself.
 
 SoloLevel isn’t just an app—it’s a full-on journey, crafted for everyone who’s ready to stop “managing tasks” and start *living quests*.
+
+[Design Your Solo Level](https://sololevel.design/)
