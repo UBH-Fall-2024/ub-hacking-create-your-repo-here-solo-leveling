@@ -6,7 +6,7 @@ import { Edit2, Trash2, Clock, Calendar, Sword, Scroll } from 'lucide-react';
 import { QuestDialog } from '../QuestDialog';
 import { QuestForm } from '../QuestForm';
 import { useState } from 'react';
-import type { Task } from '@/types';
+import type { Task, QuestStatus } from '@/types';
 import { StoryGenerator } from '../StoryGenerator';
 import { QuestCard } from '../QuestCard';
 
@@ -23,17 +23,6 @@ const columnOrder: Record<string, number> = {
   'MAIN_QUEST': 1,
   'SIDE_QUEST': 2,
 };
-
-interface QuestStatus {
-  ACTIVE: 'active';
-  COMPLETED: 'completed';
-  ARCHIVED: 'archived';
-}
-
-interface TaskWithStatus extends Task {
-  status: keyof QuestStatus;
-  completedAt?: Date;
-}
 
 export function QuestList() {
   const { tasks, updateTask, removeTask } = useStoryStore();

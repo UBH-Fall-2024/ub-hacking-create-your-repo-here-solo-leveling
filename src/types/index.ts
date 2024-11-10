@@ -2,6 +2,7 @@ import { CHARACTER_TYPES, UNIVERSE_SETTINGS, NARRATIVE_STYLES } from './constant
 
 export type QuestType = 'MAIN_QUEST' | 'SIDE_QUEST' | 'DAILY';
 export type QuestDifficulty = 'NORMAL' | 'HARD' | 'EPIC' | 'LEGENDARY';
+export type QuestStatus = 'active' | 'completed' | 'archived';
 
 export interface Task {
     id: string;
@@ -11,7 +12,7 @@ export interface Task {
     type: QuestType;
     difficulty: QuestDifficulty;
     estimatedTime?: string;
-    status: 'active' | 'completed' | 'archived';
+    status: QuestStatus;
     createdAt: Date;
     completedAt?: Date;
   }
