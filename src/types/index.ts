@@ -6,10 +6,17 @@ export interface Task {
   }
   
   export interface StorySettings {
-    character: string;
-    universe: string;
-    universeVariant: string;
-    narrativeStyle: string;
+    // Universe settings
+    universe: keyof typeof UNIVERSE_SETTINGS | 'custom';
+    customUniverse?: string;  // For custom universe description
+    
+    // Character settings
+    character: keyof typeof CHARACTER_TYPES | 'custom';
+    customCharacter?: string;  // For custom character description
+    
+    // Narrative settings
+    narrativeStyle: keyof typeof NARRATIVE_STYLES | 'custom';
+    customNarrativeStyle?: string;  // For custom narrative description
   }
   
   export interface GeneratedStory {
