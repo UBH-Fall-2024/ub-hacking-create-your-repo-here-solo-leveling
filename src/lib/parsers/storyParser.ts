@@ -1,6 +1,13 @@
 import type { GeneratedStory } from '@/types';
+import { v4 as uuidv4 } from 'uuid';
 
-export function parseStoryResponse(content: string): GeneratedStory {
+interface ParsedTask {
+  questName: string;
+  narrative: string;
+  completion: string;
+}
+
+export function parseStoryResponse(content: string): Omit<GeneratedStory, 'transformedTasks'> & { transformedTasks: ParsedTask[] } {
   try {
     // Clean up the content
     const cleanContent = content
