@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { useStoryStore } from '@/store/story';
 import { NARRATIVE_STYLES } from '@/types/constants';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -28,21 +28,41 @@ const cardVariants = {
 export function NarrativeSelect() {
   const { settings, setSettings, setCustomSetting } = useStoryStore();
   const [showCustomInput, setShowCustomInput] = useState(false);
-  const [customValue, setCustomValue] = useState('');
+  const [customValue, setCustomValue] = useState(settings.customNarrativeStyle || '');
+
+  useEffect(() => {
+    if (settings.narrativeStyle === 'custom' && settings.customNarrativeStyle) {
+      setShowCustomInput(true);
+      setCustomValue(settings.customNarrativeStyle);
+    }
+  }, [settings.narrativeStyle, settings.customNarrativeStyle]);
 
   const handleSelect = (type: keyof typeof NARRATIVE_STYLES | 'custom') => {
     if (type === 'custom') {
       setShowCustomInput(true);
     } else {
-      setSettings({ narrativeStyle: type });
+      setSettings({ 
+        narrativeStyle: type,
+        customNarrativeStyle: undefined
+      });
       setShowCustomInput(false);
+      setCustomValue('');
     }
   };
 
   const handleCustomSubmit = () => {
     if (customValue.trim()) {
       setCustomSetting('narrativeStyle', customValue);
-      setShowCustomInput(false);
+      
+      // Show confirmation animation
+      const card = document.querySelector(`[data-custom-narrative-card]`);
+      card?.classList.add('ring-2', 'ring-green-500', 'bg-green-500/10');
+      
+      // Transition to preview state
+      setTimeout(() => {
+        card?.classList.remove('ring-2', 'ring-green-500', 'bg-green-500/10');
+        setShowCustomInput(false);
+      }, 1000);
     }
   };
 
@@ -114,23 +134,60 @@ export function NarrativeSelect() {
 
           {/* Custom Style Option */}
           <motion.div
+            data-custom-narrative-card
             variants={cardVariants}
             whileHover="hover"
             onClick={() => handleSelect('custom')}
             className={`
-              relative p-6 rounded-lg border cursor-pointer
-              ${showCustomInput 
+              relative p-6 rounded-lg border cursor-pointer transition-all duration-300
+              ${settings.narrativeStyle === 'custom'
                 ? 'border-purple-500 bg-purple-500/10' 
                 : 'border-border hover:border-purple-500/50 bg-background/50'}
-              backdrop-blur-sm transition-colors
+              ${showCustomInput ? 'border-purple-500 bg-purple-500/10' : ''}
+              backdrop-blur-sm
             `}
           >
             {!showCustomInput ? (
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold">Custom Style</h3>
-                <p className="text-sm text-muted-foreground">
-                  Create your own unique narrative style
-                </p>
+                {settings.customNarrativeStyle ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">Current Style:</p>
+                    <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                      <p className="text-sm break-words whitespace-pre-wrap max-w-full">
+                        {settings.customNarrativeStyle}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 justify-end">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setShowCustomInput(true)}
+                        className="text-sm text-muted-foreground hover:text-purple-500 transition-colors"
+                      >
+                        Edit
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          setSettings({ 
+                            narrativeStyle: undefined,
+                            customNarrativeStyle: undefined 
+                          });
+                          setCustomValue('');
+                        }}
+                        className="text-sm text-muted-foreground hover:text-pink-500 transition-colors"
+                      >
+                        Remove
+                      </motion.button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Create your own unique narrative style
+                  </p>
+                )}
               </div>
             ) : (
               <div className="space-y-4">
@@ -139,8 +196,9 @@ export function NarrativeSelect() {
                   value={customValue}
                   onChange={(e) => setCustomValue(e.target.value)}
                   placeholder="Describe your narrative style..."
-                  className="w-full bg-background/50 border border-purple-500/20 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  className="w-full bg-background/50 border border-purple-500/20 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50 overflow-hidden text-ellipsis"
                   onKeyDown={(e) => e.key === 'Enter' && handleCustomSubmit()}
+                  autoFocus
                 />
                 <div className="flex justify-end gap-2">
                   <button

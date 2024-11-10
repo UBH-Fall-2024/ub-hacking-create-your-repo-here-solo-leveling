@@ -1,10 +1,16 @@
 import { CHARACTER_TYPES, UNIVERSE_SETTINGS, NARRATIVE_STYLES } from './constants';
 
+export type QuestType = 'MAIN_QUEST' | 'SIDE_QUEST' | 'DAILY';
+export type QuestDifficulty = 'NORMAL' | 'HARD' | 'EPIC' | 'LEGENDARY';
+
 export interface Task {
     id: string;
     title: string;
     description?: string;
     deadline?: Date;
+    type: QuestType;
+    difficulty: QuestDifficulty;
+    estimatedTime?: string;
   }
   
   export interface StorySettings {

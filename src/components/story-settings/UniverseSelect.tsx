@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { useStoryStore } from '@/store/story';
 import { UNIVERSE_SETTINGS } from '@/types/constants';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -28,21 +28,42 @@ const cardVariants = {
 export function UniverseSelect() {
   const { settings, setSettings, setCustomSetting } = useStoryStore();
   const [showCustomInput, setShowCustomInput] = useState(false);
-  const [customValue, setCustomValue] = useState('');
+  const [customValue, setCustomValue] = useState(settings.customUniverse || '');
+
+  useEffect(() => {
+    // Show custom input if there's a custom value
+    if (settings.universe === 'custom' && settings.customUniverse) {
+      setShowCustomInput(true);
+      setCustomValue(settings.customUniverse);
+    }
+  }, [settings.universe, settings.customUniverse]);
 
   const handleSelect = (type: keyof typeof UNIVERSE_SETTINGS | 'custom') => {
     if (type === 'custom') {
       setShowCustomInput(true);
     } else {
-      setSettings({ universe: type });
+      setSettings({ 
+        universe: type,
+        customUniverse: undefined // Clear custom value when selecting preset
+      });
       setShowCustomInput(false);
+      setCustomValue('');
     }
   };
 
   const handleCustomSubmit = () => {
     if (customValue.trim()) {
       setCustomSetting('universe', customValue);
-      setShowCustomInput(false);
+      
+      // Show confirmation animation
+      const card = document.querySelector(`[data-custom-card]`);
+      card?.classList.add('ring-2', 'ring-green-500', 'bg-green-500/10');
+      
+      // Transition to preview state
+      setTimeout(() => {
+        card?.classList.remove('ring-2', 'ring-green-500', 'bg-green-500/10');
+        setShowCustomInput(false);
+      }, 1000);
     }
   };
 
@@ -121,49 +142,101 @@ export function UniverseSelect() {
 
           {/* Custom Universe Option */}
           <motion.div
+            data-custom-card
             variants={cardVariants}
             whileHover="hover"
             onClick={() => handleSelect('custom')}
             className={`
-              relative p-6 rounded-lg border cursor-pointer
-              ${showCustomInput 
+              relative p-6 rounded-lg border cursor-pointer transition-all duration-300
+              ${settings.universe === 'custom'
                 ? 'border-purple-500 bg-purple-500/10' 
                 : 'border-border hover:border-purple-500/50 bg-background/50'}
-              backdrop-blur-sm transition-colors
+              ${showCustomInput ? 'border-purple-500 bg-purple-500/10' : ''}
+              backdrop-blur-sm
             `}
           >
             {!showCustomInput ? (
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold">Custom Universe</h3>
-                <p className="text-sm text-muted-foreground">
-                  Create your own unique world setting
-                </p>
+                {settings.customUniverse ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">Current Setting:</p>
+                    <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                      <p className="text-sm break-words whitespace-pre-wrap max-w-full">
+                        {settings.customUniverse}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 justify-end">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setShowCustomInput(true)}
+                        className="text-sm text-muted-foreground hover:text-purple-500 transition-colors"
+                      >
+                        Edit
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          setSettings({ 
+                            universe: undefined,
+                            customUniverse: undefined 
+                          });
+                          setCustomValue('');
+                        }}
+                        className="text-sm text-muted-foreground hover:text-pink-500 transition-colors"
+                      >
+                        Remove
+                      </motion.button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Create your own unique world setting
+                  </p>
+                )}
               </div>
             ) : (
-              <div className="space-y-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="space-y-4"
+              >
                 <input
                   type="text"
                   value={customValue}
                   onChange={(e) => setCustomValue(e.target.value)}
                   placeholder="Describe your universe..."
-                  className="w-full bg-background/50 border border-purple-500/20 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  className="w-full bg-background/50 border border-purple-500/20 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50 overflow-hidden text-ellipsis"
                   onKeyDown={(e) => e.key === 'Enter' && handleCustomSubmit()}
+                  autoFocus
                 />
                 <div className="flex justify-end gap-2">
-                  <button
-                    onClick={() => setShowCustomInput(false)}
-                    className="px-3 py-1 text-sm text-muted-foreground hover:text-foreground"
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    type="button"
+                    onClick={() => {
+                      setShowCustomInput(false);
+                      setCustomValue('');
+                    }}
+                    className="px-3 py-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={handleCustomSubmit}
-                    className="px-3 py-1 text-sm bg-purple-500 text-white rounded-md hover:bg-purple-600"
+                    disabled={!customValue.trim()}
+                    className="px-3 py-1 text-sm bg-purple-500 text-white rounded-md hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                   >
                     Confirm
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             )}
           </motion.div>
         </motion.div>

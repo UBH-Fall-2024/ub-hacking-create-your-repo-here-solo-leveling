@@ -6,11 +6,13 @@ import { UniverseSelect } from './UniverseSelect';
 import { CharacterSelect } from './CharacterSelect';
 import { NarrativeSelect } from './NarrativeSelect';
 import { useStoryStore } from '@/store/story';
+import { useRouter } from 'next/navigation';
 
 const steps = ['universe', 'character', 'narrative'] as const;
 type Step = typeof steps[number];
 
 export function StoryConfigForm() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState<Step>('universe');
   const settings = useStoryStore((state) => state.settings);
 
@@ -42,6 +44,16 @@ export function StoryConfigForm() {
   };
 
   const isLastStep = currentStep === steps[steps.length - 1];
+
+  const handleComplete = async () => {
+    if (isLastStep && canProceed()) {
+      // Add completion animation
+      await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause
+      router.push('/quests?newJourney=true', { scroll: false });
+    } else {
+      handleNext();
+    }
+  };
 
   return (
     <div className="min-h-screen py-20">
@@ -111,7 +123,7 @@ export function StoryConfigForm() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={isLastStep ? undefined : handleNext}
+            onClick={handleComplete}
             className={`
               px-6 py-2 rounded-full text-sm font-medium
               ${!canProceed()
