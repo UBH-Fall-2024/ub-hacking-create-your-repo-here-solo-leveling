@@ -1,4 +1,4 @@
-**Solo Level Design - Devpost Submission**
+**Solo Level Design**
 
 ### Inspiration
 Welcome to a productivity wonderland. Just like Alice tumbled down the rabbit hole, SoloLevel is here to transform the mundane into the extraordinary. Alright, confession time. I’ve tried every productivity app on the market—seriously, all of them. But here’s the twist: my ADHD brain doesn’t care about checking off a boring list of tasks. It wants to be Geralt of Rivia hunting monsters, Levi slicing titans, or Light Yagami executing a flawless master plan. And here’s the kicker—that's not a weakness. It’s a superpower. That’s how SoloLevel was born. I’m done fighting my brain’s instinct to go main character mode. Instead, I'm fully embracing it. Because let's be real, productivity is way better when it's an adventure.
