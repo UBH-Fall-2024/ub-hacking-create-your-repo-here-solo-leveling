@@ -23,9 +23,10 @@ export function Footer() {
             <div className="space-y-4">
               <motion.h3 
                 whileHover={{ scale: 1.05 }}
-                className="text-lg font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent inline-block"
+                className="text-lg bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent inline-block"
               >
-                SoloLevel.design
+                <span className="font-extrabold">sololevel</span>
+                <span className="font-medium">.design</span>
               </motion.h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Transform your daily tasks into epic adventures. Every task is a quest, every goal a legendary achievement.

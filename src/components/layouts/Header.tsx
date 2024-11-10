@@ -17,10 +17,11 @@ export function Header() {
         {/* Logo/Brand with magical effect */}
         <Link href="/" className="group relative">
           <motion.span 
-            className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent group-hover:from-purple-400 group-hover:to-pink-400 transition-all"
+            className="text-2xl bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent group-hover:from-purple-400 group-hover:to-pink-400 transition-all"
             whileHover={{ scale: 1.05 }}
           >
-            SoloLevel.design
+            <span className="font-extrabold">sololevel</span>
+            <span className="font-medium">.design</span>
           </motion.span>
           <motion.div 
             className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 to-pink-500/20 blur-lg group-hover:opacity-75 transition-opacity opacity-0"
@@ -51,13 +52,15 @@ export function Header() {
           </Link>
 
           {/* Quick Add Quest Button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-purple-500/25"
-          >
-            New Quest
-          </motion.button>
+          <Link href="/story-settings">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-purple-500/25"
+            >
+              New Quest
+            </motion.button>
+          </Link>
         </nav>
       </div>
     </motion.header>
