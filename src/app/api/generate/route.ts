@@ -40,6 +40,13 @@ interface RequestBody {
 
 export async function POST(req: Request) {
   try {
+    // Add debug logging
+    console.log('Environment check:', {
+      hasOpenAI: !!process.env.OPENAI_API_KEY,
+      hasGoogleAI: !!process.env.GOOGLE_AI_API_KEY,
+      nodeEnv: process.env.NODE_ENV
+    });
+
     const { tasks, settings, model = 'gpt-4' } = await req.json() as RequestBody;
     
     if (!tasks || tasks.length === 0) {
@@ -51,12 +58,12 @@ export async function POST(req: Request) {
       throw new Error('Invalid model selected');
     }
 
-    // Check for required API keys
+    // Check for required API keys with better error messages
     if (selectedModel.provider === 'openai' && !process.env.OPENAI_API_KEY) {
-      throw new Error('OpenAI API key not configured');
+      throw new Error('OpenAI API key not found in environment variables');
     }
     if (selectedModel.provider === 'google' && !process.env.GOOGLE_AI_API_KEY) {
-      throw new Error('Google AI API key not configured');
+      throw new Error('Google AI API key not found in environment variables');
     }
 
     const prompt = generateStoryPrompt(tasks, settings);
@@ -120,7 +127,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json(finalStory);
   } catch (error) {
-    console.error('Story generation error:', error);
+    // Improve error logging
+    console.error('Story generation error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      type: error instanceof Error ? error.constructor.name : typeof error,
+      env: process.env.NODE_ENV
+    });
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to generate story' },
       { status: 500 }
