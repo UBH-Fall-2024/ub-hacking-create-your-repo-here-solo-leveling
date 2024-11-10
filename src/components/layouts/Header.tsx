@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { LogIn, LogOut, User, Settings } from 'lucide-react';
+import Image from 'next/image';
 
 export function Header() {
   const { user, isLoading } = useUser();
@@ -86,23 +87,25 @@ export function Header() {
                     >
                       <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center">
                         {user.picture ? (
-                          <img 
+                          <Image 
                             src={user.picture} 
                             alt={user.name || 'Profile'} 
-                            className="w-full h-full rounded-full"
+                            width={32}
+                            height={32}
+                            className="rounded-full"
                           />
                         ) : (
                           <User className="w-4 h-4" />
                         )}
                       </div>
                     </Link>
-                    <a
+                    <Link
                       href="/api/auth/logout"
                       className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
                     >
                       <LogOut className="w-4 h-4" />
                       Logout
-                    </a>
+                    </Link>
                   </div>
                 </>
               ) : (
@@ -117,13 +120,13 @@ export function Header() {
                     </span>
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 group-hover:w-full transition-all duration-300" />
                   </Link>
-                  <a
+                  <Link
                     href="/api/auth/login"
                     className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-purple-500/25 flex items-center gap-2"
                   >
                     <LogIn className="w-4 h-4" />
                     Get Started
-                  </a>
+                  </Link>
                 </>
               )}
             </>
