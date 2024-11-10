@@ -20,9 +20,10 @@ interface QuestFormData {
 interface QuestFormProps {
   onClose: () => void;
   editingTask?: Task | null;
+  isNewQuest?: boolean;
 }
 
-export function QuestForm({ onClose, editingTask }: QuestFormProps) {
+export function QuestForm({ onClose, editingTask, isNewQuest = false }: QuestFormProps) {
   const { addTask, updateTask } = useStoryStore();
   const [formData, setFormData] = useState<QuestFormData>({
     title: editingTask?.title || '',
@@ -57,10 +58,15 @@ export function QuestForm({ onClose, editingTask }: QuestFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
-          Forge Your Quest
+          {isNewQuest ? 'Begin New Quest' : editingTask ? 'Edit Quest' : 'Forge Your Quest'}
         </h2>
         <p className="text-sm text-muted-foreground">
-          Define your next epic challenge
+          {isNewQuest 
+            ? 'Start your next epic challenge'
+            : editingTask 
+              ? 'Modify your quest details'
+              : 'Define your next epic challenge'
+          }
         </p>
       </div>
 
