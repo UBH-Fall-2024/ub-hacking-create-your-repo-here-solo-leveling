@@ -32,32 +32,6 @@ const AI_MODELS = {
 
 type AIModel = keyof typeof AI_MODELS;
 
-async function generateWithOpenAI(prompt: string, model: string) {
-  const completion = await openai.chat.completions.create({
-    model,
-    messages: [
-      {
-        role: "system",
-        content: "You are a creative storyteller who transforms mundane tasks into epic narrative quests."
-      },
-      {
-        role: "user",
-        content: prompt
-      }
-    ],
-    temperature: 0.9,
-  });
-
-  return completion.choices[0].message.content;
-}
-
-async function generateWithGemini(prompt: string) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  return response.text();
-}
-
 interface RequestBody {
   tasks: Task[];
   settings: StorySettings;
@@ -113,7 +87,10 @@ export async function POST(req: Request) {
         });
         story = completion.choices[0].message.content;
       } else {
-        story = await generateWithGemini(prompt);
+        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        story = response.text();
       }
     } catch (error) {
       console.error('AI generation error:', error);
