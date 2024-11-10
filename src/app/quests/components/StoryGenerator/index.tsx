@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useStoryStore } from '@/store/story';
-import { Sparkles, BookOpen, Loader2, ChevronDown, ChevronUp, RefreshCw, Trash2 } from 'lucide-react';
+import { Sparkles, BookOpen, Loader2, ChevronDown, ChevronUp, RefreshCw, Trash2, Flag } from 'lucide-react';
 import type { GeneratedStory } from '@/types';
 import { OracleAnimation } from '@/components/ui/OracleAnimation';
 
@@ -63,8 +63,6 @@ export function StoryGenerator() {
     clearStory();
   };
 
-  if (tasks.length < 3) return null;
-
   return (
     <div className="space-y-6">
       {/* Generator Button or Story Controls */}
@@ -95,7 +93,7 @@ export function StoryGenerator() {
             <p className="text-sm text-muted-foreground">
               {generatedStory 
                 ? 'Your story has been woven from your quests'
-                : `Transform your ${tasks.length} quests into an epic story`
+                : `Transform your ${tasks.length} quest${tasks.length !== 1 ? 's' : ''} into an epic story`
               }
             </p>
           </div>
@@ -116,7 +114,7 @@ export function StoryGenerator() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleGenerateStory}
-              disabled={isGenerating}
+              disabled={isGenerating || tasks.length === 0}
               className="px-6 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isGenerating ? (
@@ -138,6 +136,30 @@ export function StoryGenerator() {
             </motion.button>
           </div>
         </div>
+
+        {/* Task count indicator */}
+        {!generatedStory && tasks.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 flex items-center gap-2"
+          >
+            <div className="flex-1 h-1 bg-purple-500/10 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
+                style={{ 
+                  width: `${Math.min(100, (tasks.length / 3) * 100)}%`,
+                }}
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(100, (tasks.length / 3) * 100)}%` }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {tasks.length} {tasks.length === 1 ? 'quest' : 'quests'} ready
+            </span>
+          </motion.div>
+        )}
       </motion.div>
 
       {/* Oracle Animation */}
