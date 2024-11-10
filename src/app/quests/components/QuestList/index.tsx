@@ -1,8 +1,8 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useStoryStore } from '@/store/story';
-import { Edit2, Trash2, Clock, Calendar, Flag, Sword, Scroll } from 'lucide-react';
+import { Edit2, Trash2, Clock, Calendar, Sword, Scroll } from 'lucide-react';
 import { QuestDialog } from '../QuestDialog';
 import { QuestForm } from '../QuestForm';
 import { useState } from 'react';
@@ -13,13 +13,6 @@ const difficultyColors = {
   HARD: 'from-yellow-500/30 to-orange-500/30 border-orange-500/30',
   EPIC: 'from-purple-500/30 to-pink-500/30 border-purple-500/30',
   LEGENDARY: 'from-red-500/30 to-pink-600/30 border-red-500/30',
-} as const;
-
-const difficultyGlow = {
-  NORMAL: 'hover:shadow-green-500/25',
-  HARD: 'hover:shadow-orange-500/25',
-  EPIC: 'hover:shadow-purple-500/25',
-  LEGENDARY: 'hover:shadow-red-500/25',
 } as const;
 
 // Define column order

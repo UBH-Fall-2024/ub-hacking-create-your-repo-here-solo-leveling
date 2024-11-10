@@ -9,7 +9,7 @@ import { useSearchParams } from 'next/navigation';
 import { Edit2 } from 'lucide-react';
 
 export default function QuestsPage() {
-  const { settings, tasks } = useStoryStore();
+  const { settings } = useStoryStore();
   const searchParams = useSearchParams();
   const isNewJourney = searchParams.get('newJourney') === 'true';
 
